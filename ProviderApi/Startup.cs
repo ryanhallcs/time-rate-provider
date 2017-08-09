@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using ProviderApi.Models;
 using ProviderApi.Services;
 using ProviderApi.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ProviderApi
 {
@@ -40,7 +41,12 @@ namespace ProviderApi
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc(options => options.AddMetricsResourceFilter());
+		
+            services.AddMetrics()
+                    .AddJsonSerialization()
+                    .AddHealthChecks()
+                    .AddMetricsMiddleware();
             
             // Rate services
             services.Add(new ServiceDescriptor(
@@ -58,6 +64,7 @@ namespace ProviderApi
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseMetrics();
             app.UseMvc();
         }
     }
