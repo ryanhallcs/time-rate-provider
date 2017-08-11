@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NodaTime;
@@ -13,8 +14,10 @@ namespace ProviderApi.Core
         public static RateGroup LoadFromJsonString(string rateGroupJson)
         {            
             var result = new RateGroup();
-            TimeHelpers.AllDayOfWeeks
-                .ForEach(day => result.DayRateRanges[day] = new List<TimeRangeRate>());
+            
+            // Setup all days of the week
+            var allDayOfWeeks = Enum.GetValues(typeof(IsoDayOfWeek)).Cast<IsoDayOfWeek>().ToList();
+            allDayOfWeeks.ForEach(day => result.DayRateRanges[day] = new List<TimeRangeRate>());
 
             var rawResult = JsonConvert.DeserializeObject<RawRateGroups>(rateGroupJson);
             foreach (var listedRange in rawResult.Rates)

@@ -9,16 +9,6 @@ namespace ProviderApi.Core
 {
     public static class TimeHelpers
     {
-        public static readonly List<IsoDayOfWeek> AllDayOfWeeks = new List<IsoDayOfWeek> 
-        {
-            IsoDayOfWeek.Monday,
-            IsoDayOfWeek.Tuesday,
-            IsoDayOfWeek.Wednesday,
-            IsoDayOfWeek.Thursday,
-            IsoDayOfWeek.Friday,
-            IsoDayOfWeek.Saturday,
-            IsoDayOfWeek.Sunday
-        };
         public static List<IsoDayOfWeek> DaysFromStringList(string list)
         {
             return list.Split(',').Select(s => DayOfWeekFromString(s)).ToList();    
@@ -35,7 +25,13 @@ namespace ProviderApi.Core
                 return null;
             }
 
-            return GetTimeDayFromZonedDateTime(zonedDateTime.Value);
+            var result = new TimeDay
+            {
+                DayOfWeek = zonedDateTime.Value.DayOfWeek,
+                TimeOfDay = zonedDateTime.Value.Hour * 100 + zonedDateTime.Value.Minute
+            };
+
+            return result;
         }
 
         public static ZonedDateTime? GetUtcDateTimeFromString(string dateTime)
@@ -47,20 +43,6 @@ namespace ProviderApi.Core
             }
 
             return instant.Value.InUtc();
-        }
-
-        public static TimeDay GetTimeDayFromZonedDateTime(ZonedDateTime zonedDateTime)
-        {
-            var hour = zonedDateTime.Hour;
-            var minute = zonedDateTime.Minute;
-
-            var result = new TimeDay
-            {
-                DayOfWeek = zonedDateTime.DayOfWeek,
-                TimeOfDay = hour * 100 + minute
-            };
-
-            return result;
         }
 
         public static IsoDayOfWeek DayOfWeekFromString(string commonName)

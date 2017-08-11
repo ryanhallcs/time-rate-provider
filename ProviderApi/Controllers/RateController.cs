@@ -35,11 +35,10 @@ namespace ProviderApi.Controllers
             // Temporary hardcoded group id for sample project
             groupId = groupId ?? Guid.Empty;
 
-            var rate = ProviderService.GetRateForRange((Guid)groupId, beginTime, endTime);
+            var rate = ProviderService.GetRateForRange(groupId.Value, beginTime, endTime);
             return rate.HasValue ? rate.Value.ToString() : NoRateResponse;
         }
 
-        // POST api/values
         [HttpPost]
         public string Post([FromBody]RateRequest rateRequest)
         {

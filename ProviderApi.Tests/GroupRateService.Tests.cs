@@ -36,10 +36,14 @@ namespace ProviderApi.Tests
         [Fact]
         public void ReturnsCorrectRate()
         {
-            var rate = 1000;
             RateGroup.DayRateRanges = new Dictionary<IsoDayOfWeek, List<TimeRangeRate>>
             {
-                { IsoDayOfWeek.Monday, new List<TimeRangeRate> { new TimeRangeRate(1000, 1300, rate) } }
+                { IsoDayOfWeek.Monday, new List<TimeRangeRate> 
+                    { 
+                        new TimeRangeRate(1000, 1300, 1000), 
+                        new TimeRangeRate(1301, 1600, 1200) 
+                    } 
+                }
             };
 
             var sut = new GroupRateService(MockProvider.Object);
@@ -48,10 +52,34 @@ namespace ProviderApi.Tests
             timeDay1.DayOfWeek = IsoDayOfWeek.Monday;
             timeDay1.TimeOfDay = 1100;
             timeDay2.DayOfWeek = IsoDayOfWeek.Monday;
-            timeDay1.TimeOfDay = 1200;
+            timeDay2.TimeOfDay = 1200;
 
             var result = sut.GetRateForRange(Guid.Empty, timeDay1, timeDay2);
-            Assert.Equal(rate, result);
+            Assert.Equal(1000, result);
+        }
+
+        [Fact]
+        public void ReturnsNullIfNotFullEncapsulated()
+        {
+            RateGroup.DayRateRanges = new Dictionary<IsoDayOfWeek, List<TimeRangeRate>>
+            {
+                { IsoDayOfWeek.Monday, new List<TimeRangeRate> 
+                    { 
+                        new TimeRangeRate(1000, 1300, 1000),
+                    } 
+                }
+            };
+
+            var sut = new GroupRateService(MockProvider.Object);
+            var timeDay1 = new TimeDay();
+            var timeDay2 = new TimeDay();
+            timeDay1.DayOfWeek = IsoDayOfWeek.Monday;
+            timeDay1.TimeOfDay = 1100;
+            timeDay2.DayOfWeek = IsoDayOfWeek.Monday;
+            timeDay2.TimeOfDay = 1300;
+
+            var result = sut.GetRateForRange(Guid.Empty, timeDay1, timeDay2);
+            Assert.Null(result);
         }
     }
 }

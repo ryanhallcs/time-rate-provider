@@ -33,9 +33,9 @@ namespace ProviderApi.Tests
         [InlineData("sun")]
         public void DayOfWeekStringsAreValid(string validDayOfWeekString)
         {
-            TimeHelpers.DayOfWeekFromString(validDayOfWeekString);
+            var result = TimeHelpers.DayOfWeekFromString(validDayOfWeekString);
+            Assert.NotEqual(IsoDayOfWeek.None, result);
         }
-
 
         [Fact]
         public void DayOfWeekThrows()

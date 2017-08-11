@@ -28,7 +28,7 @@ namespace ProviderApi
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
 
-            // Load static sample data
+            // Load static sample data into configuration
             var sampleProjectText = File.ReadAllText(env.ContentRootFileProvider.GetFileInfo("./data/sample.json").PhysicalPath);
             builder.AddInMemoryCollection(new Dictionary<string, string> { {"sampleData", sampleProjectText} });
 
@@ -43,17 +43,20 @@ namespace ProviderApi
             // Add framework services.
             services.AddMvc(options => options.AddMetricsResourceFilter());
 		
+            // Add App Metrics for /ping /health and /metrics endpoints
             services.AddMetrics()
                     .AddJsonSerialization()
                     .AddHealthChecks()
                     .AddMetricsMiddleware();
-            
-            // Rate services
+
+            // Add hardcoded sample
             services.Add(new ServiceDescriptor(
                 typeof(Dictionary<Guid, RateGroup>), 
                 provider =>
                     new Dictionary<Guid, RateGroup> { {Guid.Empty, RateGroupLoader.LoadFromJsonString(Configuration["sampleData"])} }, 
                 ServiceLifetime.Singleton));
+            
+            // Rate services
             services.AddSingleton<IGroupProvider, InMemoryGroupProvider>();
             services.AddTransient<IGroupRateService, GroupRateService>();
         }
